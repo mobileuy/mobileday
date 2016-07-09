@@ -89,6 +89,8 @@ function Particles(canvasElement){
   //required canvas variables
   this.canvas = canvasElement;
   this.ctx = this.canvas.getContext('2d');
+  this.particles = [];
+  this.intervalId = null;
 }
 
 /**
@@ -97,7 +99,6 @@ function Particles(canvasElement){
  */
 Particles.prototype.init = function(){
   this.render();
-  this.createCircle();
 }
 
 /**
@@ -123,7 +124,8 @@ Particles.prototype.render = function(){
   self.canvas.width = wWidth;
   self.canvas.height = wHeight;
 
-  $(window).on('resize', self.render);
+  clearInterval(self.intervalId);
+  self.createCircle();
 }
 
 /**
@@ -131,28 +133,32 @@ Particles.prototype.render = function(){
  * @method createCircle
  */
 Particles.prototype.createCircle = function(){
-  var particle = [];
+  var self = this;
 
   for (var i = 0; i < this.numParticles; i++) {
-    var self = this,
-        color = self.colors[~~(self._rand(0, self.colors.length))];
-        vy = self._rand(self.minSpeed, self.maxSpeed);
-        vx= self._rand(self.minSpeed, self.maxSpeed);
-        r =1; //Math.sqrt(Math.sqr(vx)+Math.sqr(vy));
-    particle[i] = {
-          radius: r,
-            xPos: self._rand(0, self.canvas.width),
-            yPos: self._rand(0, self.canvas.height),
-      xVelocity: self._rand(self.minSpeed, self.maxSpeed),
-      yVelocity: vy,
-      color: 'rgba(' + color + ',' + self._rand(self.minOpacity, self.maxOpacity) + ')'
-    }
+    self.particles[i] = self.createParticle(i);
 
     //once values are determined, draw particle on canvas
-    self.draw(particle, i);
+    self.draw(self.particles, i);
   }
   //...and once drawn, animate the particle
-  self.animate(particle);
+  self.animate(self.particles);
+}
+
+Particles.prototype.createParticle = function(index) {
+  var self = this;
+
+  var vy = self._rand(self.minSpeed, self.maxSpeed)
+      vx = self._rand(self.minSpeed, self.maxSpeed);
+
+  return {
+    radius: 1 ,//Math.sqrt(Math.sqr(vx)+Math.sqr(vy))
+    xPos: self._rand(0, self.canvas.width),
+    yPos: self._rand(0, self.canvas.height),
+    xVelocity: self._rand(self.minSpeed, self.maxSpeed),
+    yVelocity: vy,
+    color: 'rgba(' + self.colors[~~(self._rand(0, self.colors.length))] + ',' + self._rand(self.minOpacity, self.maxOpacity) + ')'
+  };
 }
 
 /**
@@ -192,23 +198,23 @@ Particles.prototype.draw = function(particle, i){
  * @param  {array} particle value from createCircle & draw methods
  * @method animate
  */
-Particles.prototype.animate = function(particle){
+Particles.prototype.animate = function(particles){
   var self = this,
           ctx = self.ctx;
 
-  setInterval(function(){
+  self.intervalId = setInterval(function(){
     //clears canvas
     self.clearCanvas();
     //then redraws particles in new positions based on velocity
     for (var i = 0; i < self.numParticles; i++) {
-      particle[i].xPos += particle[i].xVelocity;
-      particle[i].yPos -= particle[i].yVelocity;
+      particles[i].xPos += particles[i].xVelocity;
+      particles[i].yPos -= particles[i].yVelocity;
 
       //if particle goes off screen call reset method to place it offscreen to the left/bottom
-      if (particle[i].xPos > self.canvas.width + particle[i].radius || particle[i].yPos > self.canvas.height + particle[i].radius) {
-        self.resetParticle(particle, i);
+      if (particles[i].xPos > self.canvas.width + particles[i].radius || particles[i].yPos > self.canvas.height + particles[i].radius) {
+        self.resetParticle(particles, i);
       } else {
-        self.draw(particle, i);
+        self.draw(particles, i);
       }
     }
   }, 1000/self.fps);
@@ -220,22 +226,22 @@ Particles.prototype.animate = function(particle){
  * @param  {number} i value from createCircle method
  * @method resetParticle
  */
-Particles.prototype.resetParticle = function(particle, i){
+Particles.prototype.resetParticle = function(particles, i){
   var self = this;
 
   var random = self._rand(0, 1);
 
   if (random > .5) {
     // 50% chance particle comes from left side of window...
-    particle[i].  xPos = -particle[i].radius;
-        particle[i].yPos =   self._rand(0, self.canvas.height);
+    particles[i].  xPos = -particles[i].radius;
+        particles[i].yPos =   self._rand(0, self.canvas.height);
   } else {
     //... or bottom of window
-    particle[i].  xPos = self._rand(0, self.canvas.width);
-        particle[i].yPos =   self.canvas.height + particle[i].radius;
+    particles[i].  xPos = self._rand(0, self.canvas.width);
+        particles[i].yPos =   self.canvas.height + particles[i].radius;
   }
   //redraw particle with new values
-  self.draw(particle, i);
+  self.draw(particles, i);
 }
 
 /**
@@ -250,10 +256,11 @@ Particles.prototype.clearCanvas = function(){
 
 
 // go go go!
-Array.from(document.getElementsByClassName("canvas")).forEach(function(element) {
+$(".canvas").each(function(index, element) {
   var particle = new Particles(element);
   particle.init();
-});
+  $(window).on('resize', $.proxy(particle.render, particle));
+})
 /**
  *  All internal anchor links will have a 900ms smooth scrolling animation to
  *  their destination and the URL will be updated to reflect the new position

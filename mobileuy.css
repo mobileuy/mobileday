@@ -530,19 +530,19 @@ html {
 }
 
 .variables-metadata:before {
-  content: '{ "particleCount" : 50 }';
+  content: '{ "particleCount" : 0 }';
 }
 
 head {
-  font-family: '{ "particleCount" : 50 }';
+  font-family: '{ "particleCount" : 0 }';
 }
 
 @media screen and (min-width: 450px) {
   .variables-metadata:before {
-    content: '{ "particleCount" : 100 }';
+    content: '{ "particleCount" : 0 }';
   }
   head {
-    font-family: '{ "particleCount" : 100 }';
+    font-family: '{ "particleCount" : 0 }';
   }
 }
 

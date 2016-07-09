@@ -44,6 +44,18 @@ function initializeClock(id, endtime) {
 
 var deadline = 'November 12 2016 09:00:00 GMT-0300';
 initializeClock('countdown_timer', deadline);
+$(document.body).on('click', '.navbar-toggle.collapsed', function () {
+  $(this).removeClass("collapsed");
+  var targetNav = $(this).attr("data-target");
+  $(targetNav).addClass("in");
+});
+
+$(document.body).on('click', '.navbar-toggle:not(.collapsed)', function () {
+  var targetNav = $(this).attr("data-target");
+  $(targetNav).removeClass("in");
+  $(this).addClass("collapsed");
+});
+
 /**
  * Generates random particles using canvas
  *
@@ -241,4 +253,23 @@ Particles.prototype.clearCanvas = function(){
 Array.from(document.getElementsByClassName("canvas")).forEach(function(element) {
   var particle = new Particles(element);
   particle.init();
+});
+/**
+ *  All internal anchor links will have a 900ms smooth scrolling animation to
+ *  their destination and the URL will be updated to reflect the new position
+ *  on the page.
+ */
+$(document).ready(function() {
+    $('a[href^="#"]').on('click', function (e) {
+        e.preventDefault();
+
+        var target = this.hash;
+        var $target = $(target);
+
+        $('html, body').stop().animate({
+            'scrollTop': $target.offset().top
+        }, 900, 'swing', function () {
+            window.location.hash = target;
+        });
+    });
 });

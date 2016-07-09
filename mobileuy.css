@@ -529,6 +529,41 @@ html {
   /* [5] */
 }
 
+.variables-metadata:before {
+  content: '{ "particleCount" : 50 }';
+}
+
+head {
+  font-family: '{ "particleCount" : 50 }';
+}
+
+@media screen and (min-width: 450px) {
+  .variables-metadata:before {
+    content: '{ "particleCount" : 100 }';
+  }
+  head {
+    font-family: '{ "particleCount" : 100 }';
+  }
+}
+
+@media screen and (min-width: 873px) {
+  .variables-metadata:before {
+    content: '{ "particleCount" : 150 }';
+  }
+  head {
+    font-family: '{ "particleCount" : 150 }';
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .variables-metadata:before {
+    content: '{ "particleCount" : 250 }';
+  }
+  head {
+    font-family: '{ "particleCount" : 250 }';
+  }
+}
+
 html {
   height: 100%;
 }

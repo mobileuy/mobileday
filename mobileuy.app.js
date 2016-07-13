@@ -53,26 +53,37 @@ function removeQuotes(string) {
 
 function getBreakpoint(element) {
     var style = null;
-    if ( window.getComputedStyle && window.getComputedStyle(element, '::before') ) {
+    if ( window.getComputedStyle && window.getComputedStyle(element, '::before') && window.getComputedStyle(element, '::before').content != "" ) {
         style = window.getComputedStyle(element, '::before');
         style = style.content;
     } else {
-        window.getComputedStyle = function(el) {
-            this.el = el;
-            this.getPropertyValue = function(prop) {
-                var re = /(\-([a-z]){1})/g;
-                if (re.test(prop)) {
-                    prop = prop.replace(re, function () {
-                        return arguments[2].toUpperCase();
-                    });
+        if (typeof window.getComputedStyle === "undefined") {
+            window.getComputedStyle = function (el) {
+                this.el = el;
+                this.getPropertyValue = function (prop) {
+
+                    var style = el.currentStyle || el.style
+
+                    if (typeof prop === "undefined" || typeof style === "undefined") {
+                        return null;
+                    }
+
+                    var re = /(\-([a-z]){1})/g;
+                    if (re.test(prop)) {
+                        prop = prop.replace(re, function () {
+                            return arguments[2].toUpperCase();
+                        });
+                    }
+                    return style[prop] ? style[prop] : null;
                 }
-                return el.currentStyle[prop] ? el.currentStyle[prop] : null;
-            };
-            return this;
-        };
+                return this;
+            }
+        }
         style = window.getComputedStyle(document.getElementsByTagName('head')[0]);
         style = style.getPropertyValue('font-family');
     }
+
+    style = style || "{}";
     return JSON.parse(removeQuotes(style));
 }
 $(document.body).on('click', '.navbar-toggle.collapsed', function () {
@@ -98,8 +109,8 @@ function Particles(canvasElement){
   this.colors = [
     '255, 255, 255',
     '255, 190, 190',
-    '200, 200, 255',
-  ]
+    '200, 200, 255'
+  ];
   //adds gradient to particles on true
   this.blurry = false;
   //adds white border
@@ -130,7 +141,7 @@ function Particles(canvasElement){
  */
 Particles.prototype.init = function(){
   this.render();
-}
+};
 
 /**
  * generates random number between min and max values
@@ -141,7 +152,7 @@ Particles.prototype.init = function(){
  */
 Particles.prototype._rand = function(min, max){
   return Math.random() * (max - min) + min;
-}
+};
 
 /**
  * Sets canvas size and updates values on resize
@@ -163,11 +174,11 @@ Particles.prototype.render = function(){
   }
 
   self.createCircle();
-}
+};
 
 Particles.prototype.extractMetadata = function () {
   return getBreakpoint(document.querySelector('.variables-metadata'));
-}
+};
 
 /**
  * Randomly creates particle attributes
@@ -184,12 +195,12 @@ Particles.prototype.createCircle = function(){
   }
   //...and once drawn, animate the particle
   self.animate(self.particles);
-}
+};
 
 Particles.prototype.createParticle = function(index) {
   var self = this;
 
-  var vy = self._rand(self.minSpeed, self.maxSpeed)
+  var vy = self._rand(self.minSpeed, self.maxSpeed);
       vx = self._rand(self.minSpeed, self.maxSpeed);
 
   return {
@@ -232,7 +243,7 @@ Particles.prototype.draw = function(particle, i){
   ctx.beginPath();
   ctx.arc(particle[i].xPos, particle[i].yPos, particle[i].radius, 0, 2 * Math.PI, false);
   ctx.fill();
-}
+};
 
 /**
  * Animates particles
@@ -259,7 +270,7 @@ Particles.prototype.animate = function(particles){
       }
     }
   }, 1000/self.fps);
-}
+};
 
 /**
  * Resets position of particle when it goes off screen
@@ -283,7 +294,7 @@ Particles.prototype.resetParticle = function(particles, i){
   }
   //redraw particle with new values
   self.draw(particles, i);
-}
+};
 
 /**
  * Clears canvas between animation frames
@@ -293,7 +304,7 @@ Particles.prototype.clearCanvas = function(){
   var self = this;
 
   this.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
-}
+};
 
 
 // go go go!
@@ -301,7 +312,7 @@ $(".canvas").each(function(index, element) {
   var particle = new Particles(element);
   particle.init();
   $(window).on('resize', $.proxy(particle.render, particle));
-})
+});
 /**
  *  All internal anchor links will have a 900ms smooth scrolling animation to
  *  their destination and the URL will be updated to reflect the new position

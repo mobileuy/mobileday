@@ -43,7 +43,7 @@ function initializeClock(id, endtime) {
 
 
 var deadline = 'November 12 2016 09:00:00 GMT-0300';
-initializeClock('countdown_timer', deadline);
+initializeClock('counter', deadline);
 function removeQuotes(string) {
     if (typeof string === 'string' || string instanceof String) {
         string = string.replace(/^['"]+|\s+|\\|(;\s?})+|['"]$/g, '');
@@ -308,7 +308,7 @@ Particles.prototype.clearCanvas = function(){
 
 
 // go go go!
-$(".canvas").each(function(index, element) {
+$(".c-particles").each(function(index, element) {
   var particle = new Particles(element);
   particle.init();
   $(window).on('resize', $.proxy(particle.render, particle));
